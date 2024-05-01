@@ -7,19 +7,27 @@ import asyncio
 bot = commands.Bot(command_prefix="/", intents=disnake.Intents.all())
 bot.remove_command('help')
 
-async def create_db():
-    db = await aiosqlite.connect('economy.db')
-    await db.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
-            balance INTEGER DEFAULT 1000,
-            xp INTEGER DEFAULT 0,
-            level INTEGER DEFAULT 1
-        )
-    ''')
-    await db.commit()
-    await db.close()
 
+
+async def create_db():
+    async with aiosqlite.connect('economy.db') as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY,
+                balance INTEGER DEFAULT 1000,
+                xp INTEGER DEFAULT 0,
+                level INTEGER DEFAULT 1
+            )
+        ''')
+        await db.commit()
+
+
+async def main():
+    await create_db()
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+	
 #on_ready
 @bot.event
 async def on_ready():
